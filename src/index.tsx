@@ -4,7 +4,7 @@ import InputOrderData from '@/pages/input-order-analysis';
 export default function Home() {
     return (
         <main className="p-4">
-            <InputOrderData />
+            <DetailedOrderAnalysis />
         </main >
     );
 }
