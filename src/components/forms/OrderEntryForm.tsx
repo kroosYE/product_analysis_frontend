@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Entry } from '@/types/order';
 import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
-import * as React from 'react'
+import * as React from 'react';
 
 // 定義元件的 props 介面
 interface OrderEntryFormProps {
@@ -12,6 +12,7 @@ interface OrderEntryFormProps {
     // onSubmit: 處理表單提交的函數
     onSubmit: () => void;
     error?: string | null;
+    humanResourceHoursInput: string;
 }
 
 // 定義表單欄位配置
@@ -27,7 +28,7 @@ const formFields = [
     { name: 'smsNotificationCost', label: '簡訊費用', type: 'number' },
     { name: 'compensationAmount', label: '補償金額', type: 'number' },
     { name: 'extraShippingCost', label: '額外運費', type: 'number' },
-    { name: 'humanResourceHours', label: '人力工時', type: 'number' },
+    { name: 'humanResourceHours', label: '人力工時', type: 'text', placeholder: 'DD:HH:MM' },
     { name: 'staffUsed', label: '使用人力', type: 'number' },
     { name: 'cause', label: '問題原因', type: 'text' },
 ];
@@ -36,7 +37,8 @@ export const OrderEntryForm: React.FC<OrderEntryFormProps> = ({
     entry,
     onInputChange,
     onSubmit,
-    error
+    error,
+    humanResourceHoursInput
 }) => {
     const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -87,8 +89,9 @@ export const OrderEntryForm: React.FC<OrderEntryFormProps> = ({
                                     id={field.name}
                                     type={field.type}
                                     name={field.name}
-                                    value={entry[field.name as keyof Entry] || ''}
+                                    value={field.name === 'humanResourceHours' ? humanResourceHoursInput : entry[field.name as keyof Entry] || ''}
                                     onChange={onInputChange}
+                                    placeholder={field.placeholder || ''}
                                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
                                 />
                             </div>

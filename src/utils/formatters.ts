@@ -41,3 +41,53 @@ export const formatRatio = (numerator: number, denominator: number): string => {
     if (denominator === 0) return '0:0';
     return `${numerator}:${denominator}`;
 };
+
+/**
+ * 
+ * 格式化人力工時
+ * 
+ * @param totalHours 
+ * @returns 
+ */
+export const formatTotalHoursToDDHHMM = (totalHours: number): string => {
+    if (isNaN(totalHours) || totalHours < 0) return '00:00:00';
+
+    const totalMinutes = Math.round(totalHours * 60);
+    const days = Math.floor(totalMinutes / (24 * 60));
+    const remainingMinutesAfterDays = totalMinutes % (24 * 60);
+    const hours = Math.floor(remainingMinutesAfterDays / 60);
+    const minutes = remainingMinutesAfterDays % 60;
+
+    return `<span class="math-inline">\{String\(days\)\.padStart\(2, '0'\)\}\:</span>{String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
+/**
+ * 
+ * 將總小時數轉換為「X日Y小時Z分」格式
+ * 
+ * @param totalHours 
+ * @returns 
+ */
+export const formatTotalHoursToChinese = (totalHours: number): string => {
+    if (isNaN(totalHours) || totalHours < 0) return '0分'; // 如果無效或負數，預設為0分
+
+    const totalMinutes = Math.round(totalHours * 60);
+
+    const days = Math.floor(totalMinutes / (24 * 60));
+    const remainingMinutesAfterDays = totalMinutes % (24 * 60);
+    const hours = Math.floor(remainingMinutesAfterDays / 60);
+    const minutes = remainingMinutesAfterDays % 60;
+
+    let result = '';
+    if (days > 0) {
+        result += `${days}日`;
+    }
+    if (hours > 0) {
+        result += `${hours}小時`;
+    }
+    if (minutes > 0 || (days === 0 && hours === 0)) { // 如果天和小時都是0，分鐘必須顯示
+        result += `${minutes}分`;
+    }
+
+    return result.trim() || '0分'; // 確保至少返回「0分」
+};

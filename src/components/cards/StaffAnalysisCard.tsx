@@ -1,4 +1,5 @@
 import { Entry } from '@/types/order';
+import { formatTotalHoursToChinese } from '@/utils/formatters';
 import React from 'react';
 
 // 定義資訊項目的類型
@@ -28,8 +29,8 @@ export const StaffAnalysisCard: React.FC<StaffAnalysisCardProps> = ({ entry }) =
     const infoItems: InfoItem[] = [
         {
             label: '總處理時間',
-            value: entry.humanResourceHours,
-            unit: '小時'
+            value: formatTotalHoursToChinese(entry.humanResourceHours),
+            unit: ''
         },
         {
             label: '部門處理數量',

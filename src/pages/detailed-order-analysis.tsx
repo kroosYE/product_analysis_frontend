@@ -10,13 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // 引入自定義 Hooks
 import { useChartExport } from '@/hooks/useChartExport';
 import { useOrderData } from '@/hooks/useOrderData';
+import { formatTotalHoursToDDHHMM } from '@/utils/formatters';
 
 // 引入常數和型別
 
 const DetailedOrderAnalysis: React.FC = () => {
   // 使用 useOrderData hook 管理訂單資料和相關操作
   const {
-    data,                   // 已儲存的訂單資料陣列
+    data,                  // 已儲存的訂單資料陣列
     newEntry,              // 當前正在輸入的訂單資料
     error,                 // 錯誤訊息
     summary,               // 訂單統計摘要
@@ -24,7 +25,8 @@ const DetailedOrderAnalysis: React.FC = () => {
     handleAddEntry,        // 處理新增訂單
     handleDeleteEntry,     // 處理刪除訂單
     handleUpdateEntry,     // 處理更新訂單
-    handleClearAll        // 處理清空所有資料
+    handleClearAll,        // 處理清空所有資料
+    humanResourceHoursInput
   } = useOrderData();
 
   // 建立圖表容器的參考，用於匯出圖表
@@ -86,12 +88,15 @@ const DetailedOrderAnalysis: React.FC = () => {
         )}
 
         {/* 資料輸入表單 */}
-        <OrderEntryForm
-          entry={newEntry}
-          onInputChange={handleInputChange}
-          onSubmit={handleAddEntry}
-          error={error}
-        />
+        <div className='mt-4'>
+          <OrderEntryForm
+            entry={newEntry}
+            onInputChange={handleInputChange}
+            onSubmit={handleAddEntry}
+            error={error}
+            humanResourceHoursInput={humanResourceHoursInput}
+          />
+        </div>
 
         {/* 統計摘要 */}
         <OrderStatsSummary
@@ -116,7 +121,11 @@ const DetailedOrderAnalysis: React.FC = () => {
 
         {/* 人力分析卡片列表 */}
         <StaffAnalysisCardList
-          entries={allEntries}
+          entries={allEntries.map(item => ({
+            ...item,
+            // 確保在顯示 humanResourceHours 時使用格式化數據
+            humanResourceHoursFormatted: formatTotalHoursToDDHHMM(item.humanResourceHours)
+          }))}
           onDelete={handleDeleteEntry}
           onUpdate={handleUpdateEntry}
         />
