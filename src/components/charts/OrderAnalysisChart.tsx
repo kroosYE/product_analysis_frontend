@@ -57,8 +57,8 @@ interface CustomTooltipProps extends TooltipProps<any, any> {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white p-4 border rounded shadow">
-                <p className="font-bold">{label}</p>
+            <div className="bg-white p-4 border rounded shadow dark:bg-gray-800 dark:border-gray-700">
+                <p className="font-bold dark:text-white">{label}</p>
                 {payload.map((entry, index) => (
                     <p key={index} style={{ color: entry.color }}>
                         {entry.name}: {entry.value.toLocaleString()}

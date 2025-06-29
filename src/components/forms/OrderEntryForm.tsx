@@ -48,20 +48,20 @@ export const OrderEntryForm: React.FC<OrderEntryFormProps> = ({
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
             {/* 展開/收合按鈕 */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-lg"
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors rounded-lg"
             >
                 <div className="flex items-center space-x-2">
-                    <Plus className="h-5 w-5 text-gray-500" />
-                    <span className="font-medium text-gray-700">新增資料</span>
+                    <Plus className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                    <span className="font-medium text-gray-700 dark:text-gray-300">新增資料</span>
                 </div>
                 {isExpanded ? (
-                    <ChevronUp className="h-5 w-5 text-gray-500" />
+                    <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                 ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                    <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                 )}
             </button>
 
@@ -81,7 +81,7 @@ export const OrderEntryForm: React.FC<OrderEntryFormProps> = ({
                             <div key={field.name} className="space-y-1">
                                 <label
                                     htmlFor={field.name}
-                                    className="text-sm font-medium text-gray-700"
+                                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
                                 >
                                     {field.label}
                                 </label>
@@ -92,7 +92,7 @@ export const OrderEntryForm: React.FC<OrderEntryFormProps> = ({
                                     value={field.name === 'humanResourceHours' ? humanResourceHoursInput : entry[field.name as keyof Entry] || ''}
                                     onChange={onInputChange}
                                     placeholder={field.placeholder || ''}
-                                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                 />
                             </div>
                         ))}
