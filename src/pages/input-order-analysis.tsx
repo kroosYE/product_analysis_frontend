@@ -1,28 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Entry } from "@/types/order";
 import html2canvas from 'html2canvas';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts';
+import { formatTotalHoursToDDHHMM } from "@/utils/formatters";
 
-// 定義資料類型
-interface Entry {
-    category: string;
-    session: number;
-    totalOrders: number;
-    totalProducts: number;
-    problemItems: number;
-    problemQuantity: number;
-    departmentHandled: number;
-    nonDepartmentHandled: number;
-    problemRatio: number;
-    refundAmount: number;
-    smsNotificationCost: number;
-    compensationAmount: number;
-    extraShippingCost: number;
-    humanResourceHours: number;
-    staffUsed: number;
-    cause: string;
-}
 
 const DetailedOrderAnalysis = () => {
     const chartRef = useRef(null);
@@ -62,13 +45,72 @@ const DetailedOrderAnalysis = () => {
         cause: "",
     })
 
+    // 用於 humanResourceHours 輸入框顯示的字串狀態
+    const [humanResourceHoursInput, setHumanResourceHoursInput] = useState<string>('00:00:00');
+
+    // 將數字工時轉換成 DD:HH:MM 字串以顯示在輸入框
+    useEffect(() => {
+        if (newEntry.humanResourceHours !== undefined && newEntry.humanResourceHours >= 0) {
+            const totalMinutes = Math.round(newEntry.humanResourceHours * 60);
+            const days = Math.floor(totalMinutes / (24 * 60));
+            const remainingMinutesAfterDays = totalMinutes % (24 * 60);
+            const hours = Math.floor(remainingMinutesAfterDays / 60);
+            const minutes = remainingMinutesAfterDays % 60;
+
+            setHumanResourceHoursInput(
+                `<span class="math-inline">\{String\(days\)\.padStart\(2, '0'\)\}\:</span>{String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+            );
+        } else {
+            setHumanResourceHoursInput('00:00:00'); // 確保輸入框在清空或無效時顯示預設
+        }
+    }, [newEntry.humanResourceHours]);
+
     // input update process
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setNewEntry({
-            ...newEntry,
-            [name]: name === "session" ? Number(value) : value,
-        })
+        if (name === "humanResourceHours") {
+            // 更新輸入框的顯示字串狀態
+            setHumanResourceHoursInput(value);
+
+            // 解析 DD:HH:MM 格式的字串
+            const parts = value.split(':');
+            let days = 0;
+            let hours = 0;
+            let minutes = 0;
+
+            if (parts.length === 3) {
+                const parsedDays = parseInt(parts[0], 10);
+                const parsedHours = parseInt(parts[1], 10);
+                const parsedMinutes = parseInt(parts[2], 10);
+
+                // 基礎驗證並賦值，確保為有效數字且在範圍內
+                days = !isNaN(parsedDays) && parsedDays >= 0 ? parsedDays : 0;
+                hours = !isNaN(parsedHours) && parsedHours >= 0 && parsedHours <= 23 ? parsedHours : 0;
+                minutes = !isNaN(parsedMinutes) && parsedMinutes >= 0 && parsedMinutes <= 59 ? parsedMinutes : 0;
+
+            } else {
+                // 如果格式不符預期，可以設為 0 或處理錯誤
+                // 這裡我們直接設為 0
+                days = 0;
+                hours = 0;
+                minutes = 0;
+            }
+
+            // 將解析後的天、時、分轉換為總小時數
+            const totalHours = days * 24 + hours + minutes / 60;
+
+            // 更新 newEntry 中的 humanResourceHours (數字型態)
+            setNewEntry(prevEntry => ({
+                ...prevEntry,
+                humanResourceHours: totalHours,
+            }));
+
+        } else {
+            setNewEntry({
+                ...newEntry,
+                [name]: name === "session" ? Number(value) : value,
+            })
+        }
     }
 
     // 計算問題比例的函數
@@ -79,7 +121,7 @@ const DetailedOrderAnalysis = () => {
         }));
     };
 
-    const processedData = calculateProblemRatio([...data, newEntry]);    
+    const processedData = calculateProblemRatio([...data, newEntry]);
 
     // 新增資料項目
     const handleAddEntry = () => {
@@ -102,6 +144,7 @@ const DetailedOrderAnalysis = () => {
             staffUsed: 0,
             cause: "",
         }); // 清空表單
+        setHumanResourceHoursInput('00:00:00');
     };
 
     // 定義 CustomTooltip 的 props 型別
@@ -238,11 +281,11 @@ const DetailedOrderAnalysis = () => {
                                 className="p-2 border rounded"
                             />
                             <input
-                                type="number"
+                                type="text"
                                 name="humanResourceHours"
-                                value={newEntry.humanResourceHours || ""}
+                                value={humanResourceHoursInput}
                                 onChange={handleInputChange}
-                                placeholder="人力工時"
+                                placeholder="人力工時 (DD:HH:MM)"
                                 className="p-2 border rounded"
                             />
                             <input
@@ -351,7 +394,7 @@ const DetailedOrderAnalysis = () => {
                             <div key={index} className="p-4 bg-gray-50 rounded shadow">
                                 <h4 className="font-bold text-lg mb-2">{item.category}</h4>
                                 <div className="space-y-2">
-                                    <p><span className="font-semibold">總處理時間：</span>{item.humanResourceHours} 小時</p>
+                                    <p><span className="font-semibold">總處理時間：</span>{formatTotalHoursToDDHHMM(item.humanResourceHours)} 小時</p>
                                     <p><span className="font-semibold">部門處理數量：</span>{item.departmentHandled} 件</p>
                                     <p><span className="font-semibold">非部門處理數量：</span>{item.nonDepartmentHandled} 件</p>
                                     <p><span className="font-semibold">耗費人力：</span>{item.staffUsed} 人</p>
