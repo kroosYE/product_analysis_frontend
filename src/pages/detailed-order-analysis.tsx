@@ -224,7 +224,7 @@ const DetailedOrderAnalysis: React.FC = () => {
         <div className="border-t border-gray-100 my-6"></div>
 
         {/* 圖表分析區塊 */}
-        <section className="space-y-6">
+        <section>
           <div className="flex items-center gap-2 mb-4">
             <div className="h-6 w-1 bg-purple-500 rounded-full"></div>
             <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">趨勢與成本分析</h2>
@@ -244,7 +244,7 @@ const DetailedOrderAnalysis: React.FC = () => {
             />
           </div>
 
-          <div className="mt-8">
+          <div className="mt-16">
             <StaffAnalysisCardList
               entries={data}
               onDelete={handleDeleteEntry}

@@ -13,7 +13,7 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ title, value, bgColor, textColor }) => (
     <div className={`p-4 ${bgColor} rounded`}>
         <h4 className={`font-semibold ${textColor}`}>{title}</h4>
-        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
     </div>
 );
 
