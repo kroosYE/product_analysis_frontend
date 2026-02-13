@@ -3,8 +3,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { DEFAULT_ORDER_ENTRY } from '@/entities/order-entry/model';
 import { buildOrderSummary, withProblemRatio } from '@/entities/order-entry/selectors';
 import { formatTotalHoursToDDHHMM, parseDDHHMMToTotalHours } from '@/utils/formatters';
+import { CsvRowError, parseCsvToEntries, serializeEntriesToCsv } from '@/entities/order-entry/csv';
 
 const STORAGE_KEY = 'orderAnalysisData'
+
+type CsvImportMode = 'append' | 'replace';
+
+interface CsvImportResult {
+    importedCount: number;
+    errors: CsvRowError[];
+}
 
 export const useOrderData = () => {
     // 狀態管理
@@ -143,6 +151,28 @@ export const useOrderData = () => {
 
     const summary = buildOrderSummary(data);
 
+    const exportCsv = useCallback(() => serializeEntriesToCsv(data), [data]);
+
+    const importCsv = useCallback((csvText: string, mode: CsvImportMode): CsvImportResult => {
+        const { entries, errors } = parseCsvToEntries(csvText);
+
+        setData((prev) => {
+            const baseEntries = mode === 'replace' ? [] : prev;
+            return withProblemRatio([...baseEntries, ...entries]);
+        });
+
+        if (errors.length > 0) {
+            setError(`匯入完成：成功 ${entries.length} 筆，失敗 ${errors.length} 筆`);
+        } else {
+            setError(null);
+        }
+
+        return {
+            importedCount: entries.length,
+            errors,
+        };
+    }, []);
+
     return {
         // 狀態
         data,
@@ -156,7 +186,9 @@ export const useOrderData = () => {
         handleAddEntry,
         handleDeleteEntry,
         handleUpdateEntry,
-        handleClearAll
+        handleClearAll,
+        exportCsv,
+        importCsv,
     };
 };
 

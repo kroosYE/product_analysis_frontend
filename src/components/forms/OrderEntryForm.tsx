@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Entry } from '@/types/order';
-import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import * as React from 'react';
 
 // 定義元件的 props 介面
@@ -40,75 +39,113 @@ export const OrderEntryForm: React.FC<OrderEntryFormProps> = ({
     error,
     humanResourceHoursInput
 }) => {
-    const [isExpanded, setIsExpanded] = React.useState(false);
+    // 定義欄位介面
+    interface Field {
+        name: string;
+        label: string;
+        type: string;
+        placeholder?: string;
+        className?: string; // Optional className
+    }
 
-    const handleSubmit = () => {
-        onSubmit();
-        setIsExpanded(false);
-    };
+    // 分組定義
+    const sections: { title: string; fields: Field[] }[] = [
+        {
+            title: "基本資訊",
+            fields: [
+                { name: 'category', label: '場次名稱', type: 'text' },
+                { name: 'totalOrders', label: '總訂單數', type: 'number' },
+                { name: 'totalProducts', label: '商品總數', type: 'number' },
+            ]
+        },
+        {
+            title: "問題統計",
+            fields: [
+                { name: 'problemItems', label: '問題品項數', type: 'number' },
+                { name: 'problemQuantity', label: '問題商品數量', type: 'number' },
+            ]
+        },
+        {
+            title: "處理情形",
+            fields: [
+                { name: 'departmentHandled', label: '部門處理數量', type: 'number' },
+                { name: 'nonDepartmentHandled', label: '非部門處理數量', type: 'number' },
+            ]
+        },
+        {
+            title: "成本分析",
+            fields: [
+                { name: 'refundAmount', label: '退款金額', type: 'number' },
+                { name: 'smsNotificationCost', label: '簡訊費用', type: 'number' },
+                { name: 'compensationAmount', label: '補償金額', type: 'number' },
+                { name: 'extraShippingCost', label: '額外運費', type: 'number' },
+            ]
+        },
+        {
+            title: "人力資源",
+            fields: [
+                { name: 'humanResourceHours', label: '人力工時', type: 'text', placeholder: 'DD:HH:MM' },
+                { name: 'staffUsed', label: '使用人力', type: 'number' },
+            ]
+        },
+        {
+            title: "其他",
+            fields: [
+                { name: 'cause', label: '問題原因', type: 'text', className: 'md:col-span-2' },
+            ]
+        }
+    ];
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
-            {/* 展開/收合按鈕 */}
-            <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors rounded-lg"
-            >
-                <div className="flex items-center space-x-2">
-                    <Plus className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                    <span className="font-medium text-gray-700 dark:text-gray-300">新增資料</span>
-                </div>
-                {isExpanded ? (
-                    <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+        <div className="bg-white dark:bg-gray-800 rounded-lg">
+            <div className="space-y-6">
+                {/* 錯誤訊息 */}
+                {error && (
+                    <div className="p-3 bg-red-50 text-red-600 rounded-md">
+                        {error}
+                    </div>
                 )}
-            </button>
 
-            {/* 表單內容 */}
-            {isExpanded && (
-                <div className="p-4 space-y-4">
-                    {/* 錯誤訊息 */}
-                    {error && (
-                        <div className="p-3 bg-red-50 text-red-600 rounded-md">
-                            {error}
+                {/* 分區顯示欄位 */}
+                {sections.map((section) => (
+                    <div key={section.title} className="space-y-3">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 border-b pb-1 dark:border-gray-600">
+                            {section.title}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {section.fields.map((field) => (
+                                <div key={field.name} className={`space-y-1 ${field.className || ''}`}>
+                                    <label
+                                        htmlFor={field.name}
+                                        className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide"
+                                    >
+                                        {field.label}
+                                    </label>
+                                    <input
+                                        id={field.name}
+                                        type={field.type}
+                                        name={field.name}
+                                        value={field.name === 'humanResourceHours' ? humanResourceHoursInput : entry[field.name as keyof Entry] || ''}
+                                        onChange={onInputChange}
+                                        placeholder={field.placeholder || ''}
+                                        className="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    />
+                                </div>
+                            ))}
                         </div>
-                    )}
-
-                    {/* 表單欄位 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {formFields.map((field) => (
-                            <div key={field.name} className="space-y-1">
-                                <label
-                                    htmlFor={field.name}
-                                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                                >
-                                    {field.label}
-                                </label>
-                                <input
-                                    id={field.name}
-                                    type={field.type}
-                                    name={field.name}
-                                    value={field.name === 'humanResourceHours' ? humanResourceHoursInput : entry[field.name as keyof Entry] || ''}
-                                    onChange={onInputChange}
-                                    placeholder={field.placeholder || ''}
-                                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                />
-                            </div>
-                        ))}
                     </div>
+                ))}
 
-                    {/* 提交按鈕 */}
-                    <div className="flex justify-end pt-4">
-                        <Button
-                            onClick={handleSubmit}
-                            className="bg-green-500 hover:bg-green-600 text-white"
-                        >
-                            新增資料
-                        </Button>
-                    </div>
+                {/* 提交按鈕 */}
+                <div className="flex justify-end pt-4 border-t dark:border-gray-600">
+                    <Button
+                        onClick={onSubmit}
+                        className="bg-green-600 hover:bg-green-700 text-white min-w-[120px]"
+                    >
+                        確認新增
+                    </Button>
                 </div>
-            )}
+            </div>
         </div>
     );
 };
