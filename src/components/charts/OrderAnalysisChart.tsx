@@ -94,6 +94,12 @@ export const OrderAnalysisChart: React.FC<OrderAnalysisChartProps> = ({
     return (
         <div className="h-80">
             <h3 className="text-lg font-semibold mb-2">{title}</h3>
+            {data.length === 0 && (
+                <div className="flex h-[calc(100%-2rem)] items-center justify-center rounded border border-dashed border-gray-300 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                    尚無資料，請先新增場次資料
+                </div>
+            )}
+            {data.length > 0 && (
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
@@ -119,6 +125,7 @@ export const OrderAnalysisChart: React.FC<OrderAnalysisChartProps> = ({
                     ))}
                 </BarChart>
             </ResponsiveContainer>
+            )}
         </div>
     );
 };

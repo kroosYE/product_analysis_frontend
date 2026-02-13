@@ -58,7 +58,35 @@ export const formatTotalHoursToDDHHMM = (totalHours: number): string => {
     const hours = Math.floor(remainingMinutesAfterDays / 60);
     const minutes = remainingMinutesAfterDays % 60;
 
-    return `<span class="math-inline">\{String\(days\)\.padStart\(2, '0'\)\}\:</span>{String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
+export const parseDDHHMMToTotalHours = (value: string): number => {
+    const parts = value.split(':');
+
+    if (parts.length !== 3) {
+        return 0;
+    }
+
+    const [daysPart, hoursPart, minutesPart] = parts;
+    const days = Number(daysPart);
+    const hours = Number(hoursPart);
+    const minutes = Number(minutesPart);
+
+    if (
+        Number.isNaN(days) ||
+        Number.isNaN(hours) ||
+        Number.isNaN(minutes) ||
+        days < 0 ||
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59
+    ) {
+        return 0;
+    }
+
+    return days * 24 + hours + minutes / 60;
 };
 
 /**

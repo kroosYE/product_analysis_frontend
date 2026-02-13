@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // 引入自定義 Hooks
 import { useChartExport } from '@/hooks/useChartExport';
 import { useOrderData } from '@/hooks/useOrderData';
-import { formatTotalHoursToDDHHMM } from '@/utils/formatters';
 
 // 引入常數和型別
 
@@ -36,12 +35,8 @@ const DetailedOrderAnalysis: React.FC = () => {
   const {
     handleExport,         // 處理匯出操作
     isExporting,         // 匯出狀態
-    exportError,         // 匯出錯誤訊息
-    clearError          // 清除錯誤訊息
+    exportError         // 匯出錯誤訊息
   } = useChartExport(chartRef);
-
-  // 所有要顯示的資料（包含已儲存的和正在輸入的）
-  const allEntries = [...data, newEntry];
 
   // 處理匯出按鈕點擊
   const handleExportClick = async () => {
@@ -57,10 +52,15 @@ const DetailedOrderAnalysis: React.FC = () => {
   };
 
   return (
-    <Card className="w-full p-4" ref={chartRef}>
+    <Card className="w-full p-4 md:p-6" ref={chartRef}>
       {/* 頁面標題和操作按鈕 */}
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl font-bold">訂單問題詳細分析</CardTitle>
+      <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <CardTitle className="text-xl font-bold md:text-2xl">訂單問題詳細分析</CardTitle>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            架構優化版：資料輸入、摘要指標與圖表分析分區呈現
+          </p>
+        </div>
         <div className="flex gap-2">
           <Button
             onClick={handleClearAll}
@@ -87,48 +87,45 @@ const DetailedOrderAnalysis: React.FC = () => {
           </div>
         )}
 
-        {/* 資料輸入表單 */}
-        <div className='mt-4'>
-          <OrderEntryForm
-            entry={newEntry}
-            onInputChange={handleInputChange}
-            onSubmit={handleAddEntry}
-            error={error}
-            humanResourceHoursInput={humanResourceHoursInput}
-          />
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+          <section className="xl:col-span-3">
+            <h2 className="mb-3 text-base font-semibold text-gray-700 dark:text-gray-200">資料輸入</h2>
+            <OrderEntryForm
+              entry={newEntry}
+              onInputChange={handleInputChange}
+              onSubmit={handleAddEntry}
+              error={error}
+              humanResourceHoursInput={humanResourceHoursInput}
+            />
+          </section>
+
+          <section className="xl:col-span-2">
+            <h2 className="mb-3 text-base font-semibold text-gray-700 dark:text-gray-200">核心指標</h2>
+            <OrderStatsSummary summary={summary} />
+          </section>
         </div>
 
-        {/* 統計摘要 */}
-        <OrderStatsSummary
-          data={data}
-          currentEntry={newEntry}
-          summary={summary}
-        />
+        <section className="space-y-6">
+          <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200">分析視圖</h2>
 
-        {/* 商品問題分析圖表 */}
-        <OrderAnalysisChart
-          data={allEntries}
-          title="商品問題分析"
-          type="problem"
-        />
+          <OrderAnalysisChart
+            data={data}
+            title="商品問題分析"
+            type="problem"
+          />
 
-        {/* 成本分析圖表 */}
-        <OrderAnalysisChart
-          data={allEntries}
-          title="成本分析"
-          type="cost"
-        />
+          <OrderAnalysisChart
+            data={data}
+            title="成本分析"
+            type="cost"
+          />
 
-        {/* 人力分析卡片列表 */}
-        <StaffAnalysisCardList
-          entries={allEntries.map(item => ({
-            ...item,
-            // 確保在顯示 humanResourceHours 時使用格式化數據
-            humanResourceHoursFormatted: formatTotalHoursToDDHHMM(item.humanResourceHours)
-          }))}
-          onDelete={handleDeleteEntry}
-          onUpdate={handleUpdateEntry}
-        />
+          <StaffAnalysisCardList
+            entries={data}
+            onDelete={handleDeleteEntry}
+            onUpdate={handleUpdateEntry}
+          />
+        </section>
       </CardContent>
     </Card>
   );

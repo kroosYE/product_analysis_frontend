@@ -211,18 +211,19 @@ export const StaffAnalysisCardList: React.FC<StaffAnalysisCardListProps> = ({
     onDelete,
     onUpdate
 }) => {
-    // 過濾掉沒有類別名稱的條目
-    const validEntries = entries.filter(entry => entry.category.trim() !== '');
+    const validEntries = entries
+        .map((entry, originalIndex) => ({ entry, originalIndex }))
+        .filter(({ entry }) => entry.category.trim() !== '');
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {validEntries.map((entry, index) => (
+            {validEntries.map(({ entry, originalIndex }) => (
                 <StaffAnalysisCard
-                    key={entry.category || index}
+                    key={`${entry.category || 'entry'}-${originalIndex}`}
                     entry={entry}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
-                    index={index}
+                    index={originalIndex}
                 />
             ))}
         </div>
